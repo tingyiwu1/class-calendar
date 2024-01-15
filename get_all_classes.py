@@ -21,6 +21,8 @@ load_dotenv()
 
 USERNAME, PASSWORD = os.getenv("USERNAME"), os.getenv("PASSWORD")
 
+SEMESTER = Semester.from_str("fall 2023")
+
 
 async def main():
     async with PersistentCookieJar(
@@ -30,8 +32,7 @@ async def main():
     ) as session, studentlink.StudentLinkAuth(
         USERNAME, PASSWORD, session=session
     ) as sl:
-        semester = Semester.from_str("spring 2023")
-        college_codes = await sl.module(Add).get_college_codes(semester)
+        college_codes = await sl.module(Add).get_college_codes(SEMESTER)
 
         async def get_all_classes_in_college(college_code: str):
             result = []
@@ -40,7 +41,7 @@ async def main():
             while query:
                 print(query)
                 classes, query = await sl.module(BrowseSchedule).search_class(
-                    semester, *query, include_next_query=True
+                    SEMESTER, *query, include_next_query=True
                 )
                 result.extend(classes)
             return result

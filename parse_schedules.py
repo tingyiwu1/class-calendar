@@ -15,6 +15,8 @@ load_dotenv()
 
 USERNAME, PASSWORD = os.getenv("USERNAME"), os.getenv("PASSWORD")
 
+INPUT = "classes.pickle"
+OUTPUT = "schedules.xlsx"
 
 class ClassEvent(TypedDict):
     start: datetime.time
@@ -23,7 +25,7 @@ class ClassEvent(TypedDict):
 
 
 def main():
-    with open("classes.pickle", "rb") as f:
+    with open(INPUT, "rb") as f:
         classes: dict[str, list[RegClassView]] = pickle.load(f)
     classroom_schedules: dict[
         str, dict[str, dict[Weekday, list[ClassEvent]]]
@@ -61,7 +63,7 @@ def main():
                 row += [""] * (day_sizes[day] - len(rooms[row[0]].get(day, [])))
         sheets[building] = grid
 
-    with pd.ExcelWriter("schedules.xlsx") as writer:
+    with pd.ExcelWriter(OUTPUT) as writer:
         for building, grid in sheets.items():
             df = pd.DataFrame(zip_longest(*grid))
             df.to_excel(writer, sheet_name=building, index=False, header=False)
